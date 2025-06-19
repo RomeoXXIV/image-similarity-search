@@ -18,8 +18,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY . .
 
 RUN mkdir -p /app/app/static/uploads /app/app/static/features /app/app/static/results /app/data && \
-    chown -R appuser:appuser /app && \
-    chmod -R 755 /app
+    mkdir -p /home/appuser && \
+    chown -R appuser:appuser /app /home/appuser && \
+    chmod -R 755 /app /home/appuser
 
 USER appuser
 
