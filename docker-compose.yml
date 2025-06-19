@@ -6,9 +6,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./app/static/uploads:/app/app/static/uploads:rw
-      - ./app/static/features:/app/app/static/features:ro
-      - ./app/static/results:/app/app/static/results:rw
+      - ./app/static/uploads:/app/static/uploads:rw
+      - ./app/static/features:/app/static/features:ro
+      - ./app/static/results:/app/static/results:rw
       - ./data:/app/data:ro
       - db_data:/app/db_data
     environment:
