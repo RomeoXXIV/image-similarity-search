@@ -51,7 +51,6 @@ build/
 .ipynb_checkpoints
 
 # Fichiers de données volumineux
-*.pkl
 *.h5
 *.pt
 *.pth
