@@ -198,12 +198,26 @@ L'application intègre plusieurs mesures de protection :
    echo "SECRET_KEY=votre_cle_secrete_tres_longue_et_aleatoire" > .env
    ```
 
-4. Lancez l'application avec Docker Compose :
+4. Générez ou transférez les descripteurs d'images (fichiers PKL) :
+   ```bash
+   # Option 1 : Générer les descripteurs (nécessite les images dans app/static/image.orig/)
+   python run_indexing.py
+   
+   # Option 2 : Si vous avez déjà les descripteurs sur votre machine locale
+   # Sur votre machine locale :
+   # tar -czvf features.tar.gz app/static/features/*.pkl
+   # scp features.tar.gz user@adresse_ip_vm:~/image-similarity-search/
+   
+   # Sur la VM :
+   # tar -xzvf features.tar.gz
+   ```
+
+5. Lancez l'application avec Docker Compose :
    ```bash
    docker-compose up -d
    ```
 
-5. Accédez à l'application via l'adresse IP de votre VM sur le port 8080 :
+6. Accédez à l'application via l'adresse IP de votre VM sur le port 8080 :
    ```
    http://IP_DE_VOTRE_VM:8080
    ```
