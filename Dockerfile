@@ -17,10 +17,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
-RUN mkdir -p /app/app/static/uploads /app/app/static/features /app/app/static/results /app/data && \
+RUN mkdir -p /app/static/uploads /app/static/features /app/static/results /app/data && \
     mkdir -p /home/appuser && \
     chown -R appuser:appuser /app /home/appuser && \
-    chmod -R 755 /app /home/appuser
+    chmod -R 755 /app /home/appuser && \
+    chmod -R 777 /app/static/results /app/static/uploads
 
 USER appuser
 
