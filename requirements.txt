@@ -1,0 +1,13 @@
+flask
+flask-limiter
+flask-wtf
+matplotlib
+opencv-python
+pillow
+scikit-learn
+scipy
+tqdm
+torch
+torchaudio
+torchvision
+gunicorn

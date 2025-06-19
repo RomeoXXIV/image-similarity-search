@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Résultats de recherche</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+    <nav class="navbar is-primary" role="navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item has-text-weight-bold" href="{{ url_for('search_page') }}">
+                <span class="icon">
+                    <i class="mdi mdi-image-search"></i>
+                </span>
+                <span>Recherche IA</span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        <span class="icon">
+                            <i class="mdi mdi-account"></i>
+                        </span>
+                        <span>{{ session.user_id }}</span>
+                    </a>
+                    <div class="navbar-dropdown is-right">
+                        <a class="navbar-item" href="{{ url_for('logout') }}">
+                            <span class="icon">
+                                <i class="mdi mdi-logout"></i>
+                            </span>
+                            <span>Déconnexion</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero is-primary">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title is-2">
+                    <span class="icon is-large">
+                        <i class="mdi mdi-check-circle mdi-48px"></i>
+                    </span>
+                    Résultats trouvés
+                </h1>
+                <p class="subtitle">
+                    Top {{ top_n }} des images les plus similaires
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-2 has-text-centered mt-5">Résultats de la recherche</h1>
+            <h2 class="subtitle is-4 has-text-centered">Top {{ top_n }} images les plus similaires</h2>
+            
+            <div class="columns">
+                <div class="column is-6">
+                    <div class="box" style="height: 100%;">
+                        <h3 class="title is-4 has-text-centered mb-4">Informations sur la requête</h3>
+                        <div class="columns is-vcentered">
+                            <div class="column is-5">
+                                <figure class="image is-4by3">
+                                    <img src="{{ query_path }}" alt="Image requête" style="object-fit: cover;">
+                                </figure>
+                            </div>
+                            <div class="column">
+                                <div class="content">
+                                    <table class="table is-fullwidth">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Modèle:</strong></td>
+                                                <td>{{ model|upper }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Métrique:</strong></td>
+                                                <td>{{ similarity }}</td>
+                                            </tr>
+                                            {% if class_name %}
+                                            <tr>
+                                                <td><strong>Classe:</strong></td>
+                                                <td>{{ class_name }} ({{ image_class }})</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if average_precision %}
+                                            <tr>
+                                                <td><strong>Précision moyenne:</strong></td>
+                                                <td>{{ average_precision }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if pr_curve_path %}
+                <div class="column is-6">
+                    <div class="box" style="height: 100%;">
+                        <h3 class="title is-4 has-text-centered">Courbe Rappel/Précision</h3>
+                        <div class="is-flex is-justify-content-center is-align-items-center" style="height: calc(100% - 50px);">
+                            <img src="{{ url_for('static', filename=pr_curve_path) }}" alt="Courbe Rappel/Précision" style="max-height: 250px; max-width: 100%;">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="columns is-multiline is-centered">
+                {% for path, score in results %}
+                <div class="column is-one-third-desktop is-half-tablet">
+                    <div class="card">
+                        <div class="card-image">
+                            <figure class="image is-4by3">
+                                <img src="{{ path }}" alt="Image similaire {{ loop.index }}" style="object-fit: cover;">
+                            </figure>
+                        </div>
+                        <div class="card-content">
+                            <div class="content has-text-centered">
+                                <p class="is-size-5 has-text-weight-bold">
+                                    Score: {{ "%.4f"|format(score) }}
+                                </p>
+                                <p class="is-size-7 has-text-grey">
+                                    Rang {{ loop.index }} / {{ results|length }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="has-text-centered mt-6">
+                <a href="/search" class="button is-primary is-large">
+                    <span class="icon">
+                        <i class="mdi mdi-arrow-left"></i>
+                    </span>
+                    <span>Nouvelle recherche</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer mt-6">
+        <div class="content has-text-centered">
+            <div class="container">
+                <p class="has-text-grey mb-2">
+                    Recherche d'images par intelligence artificielle
+                </p>
+                <p class="is-size-6 has-text-weight-semibold">
+                    Développé par Maxime Dupuis & Roméo Ibraimovski
+                </p>
+                <p class="is-size-7 has-text-grey-light mt-2">
+                    2025 - Projet Cloud Computing
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

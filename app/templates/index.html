@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Recherche d'images similaires</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+    <style>
+    .notification {
+        position: relative;
+        z-index: 50;
+    }
+</style>
+</head>
+<body>
+    <nav class="navbar is-primary" role="navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item has-text-weight-bold" href="{{ url_for('search_page') }}">
+                <span class="icon">
+                    <i class="mdi mdi-image-search"></i>
+                </span>
+                <span>Recherche IA</span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        <span class="icon">
+                            <i class="mdi mdi-account"></i>
+                        </span>
+                        <span>{{ session.user_id }}</span>
+                    </a>
+                    <div class="navbar-dropdown is-right">
+                        <a class="navbar-item" href="{{ url_for('logout') }}">
+                            <span class="icon">
+                                <i class="mdi mdi-logout"></i>
+                            </span>
+                            <span>Déconnexion</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <section class="section py-3" style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: transparent; pointer-events: none;">
+                <div class="container" style="pointer-events: auto;">
+                    {% for category, message in messages %}
+                        <div class="notification is-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }}">
+                            <button class="delete"></button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    {% endwith %}
+
+    <section class="hero is-primary">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title is-2">
+                    <span class="icon is-large">
+                        <i class="mdi mdi-image-search mdi-48px"></i>
+                    </span>
+                    Recherche d'images similaires
+                </h1>
+                <p class="subtitle">
+                    Trouvez des images similaires en utilisant l'intelligence artificielle
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <div class="box">
+                        <form method="post" action="/search" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            
+                            <div class="field">
+                                <label class="label">
+                                    <span class="icon">
+                                        <i class="mdi mdi-database"></i>
+                                    </span>
+                                    <span>Source de l'image</span>
+                                </label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select name="image_source" id="image_source">
+                                            <option value="external">Image externe</option>
+                                            <option value="database">Image de la base de données</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label">
+                                    <span class="icon">
+                                        <i class="mdi mdi-tag-multiple"></i>
+                                    </span>
+                                    <span>Classe de l'image</span>
+                                </label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select name="image_class" id="image_class">
+                                            <option value="0">0 - People (0-99)</option>
+                                            <option value="1">1 - Beaches (100-199)</option>
+                                            <option value="2">2 - Architecture (200-299)</option>
+                                            <option value="3">3 - Buses (300-399)</option>
+                                            <option value="4">4 - Dinosaurs (400-499)</option>
+                                            <option value="5">5 - Elephants (500-599)</option>
+                                            <option value="6">6 - Flowers (600-699)</option>
+                                            <option value="7">7 - Horses (700-799)</option>
+                                            <option value="8">8 - Mountains (800-899)</option>
+                                            <option value="9">9 - Food (900-999)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Champ pour les images externes -->
+                            <div class="field" id="external_image_field">
+                                <label class="label">
+                                    <span class="icon">
+                                        <i class="mdi mdi-image-plus"></i>
+                                    </span>
+                                    <span>Sélectionner une image</span>
+                                </label>
+                                <div class="control">
+                                    <div class="file is-boxed is-centered has-name is-fullwidth">
+                                        <label class="file-label">
+                                            <input class="file-input" type="file" name="image" accept="image/*" id="external_file_input">
+                                            <span class="file-cta">
+                                                <span class="file-icon">
+                                                    <i class="mdi mdi-upload"></i>
+                                                </span>
+                                            </span>
+                                            <span class="file-name">
+                                                Aucun fichier sélectionné
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Champ pour les images de la base de données -->
+                            <div class="field" id="database_image_field" style="display: none;">
+                                <label class="label">
+                                    <span class="icon">
+                                        <i class="mdi mdi-image-plus"></i>
+                                    </span>
+                                    <span>Sélectionner une image</span>
+                                </label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select name="database_image_number" id="database_image_number">
+                                            <option value="">-- Sélectionnez un numéro d'image --</option>
+                                            {% for i in range(0, 100) %}
+                                            <option value="{{ i }}">Image {{ i }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mt-0" id="preview_container" style="display: none;">
+                                    <p class="has-text-centered mb-0 has-text-weight-bold">Aperçu de l'image:</p>
+                                    <figure class="image is-flex is-justify-content-center is-align-items-center mx-auto" style="max-height: 120px; margin-bottom: 0;">
+                                        <img id="image_preview" src="" alt="Aperçu de l'image" style="max-height: 100px; object-fit: contain;">
+                                    </figure>
+                                </div>
+                                <input type="hidden" name="database_image" id="database_image_path" value="">
+                            </div>
+
+                            <div class="field mt-0">
+                                <label class="label">
+                                    <span class="icon">
+                                        <i class="mdi mdi-brain"></i>
+                                    </span>
+                                    <span>Modèle d'IA</span>
+                                </label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select name="model">
+                                            <option value="vgg16">VGG16</option>
+                                            <option value="resnet50" selected>ResNet50</option>
+                                            <option value="vit_b_16">ViT_B_16</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field mt-1">
+                                <label class="label">
+                                    <span class="icon">
+                                        <i class="mdi mdi-calculator"></i>
+                                    </span>
+                                    <span>Méthode de similarité</span>
+                                </label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select name="similarity">
+                                            <option value="euclidean">Distance Euclidienne</option>
+                                            <option value="chi_square">Chi-carré</option>
+                                            <option value="correlation">Corrélation</option>
+                                            <option value="bhattacharyya">Bhattacharyya</option>
+                                            <option value="cosine" selected>Cosinus</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field mt-1">
+                                <label class="label">
+                                    <span class="icon">
+                                        <i class="mdi mdi-format-list-numbered"></i>
+                                    </span>
+                                    <span>Nombre de résultats</span>
+                                </label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select name="top_n">
+                                            <option value="5">Top 5</option>
+                                            <option value="10">Top 10</option>
+                                            <option value="20">Top 20</option>
+                                            <option value="50">Top 50</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field mt-1">
+                                <div class="control">
+                                    <button class="button is-primary is-fullwidth is-medium" type="submit">
+                                        <span class="icon">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </span>
+                                        <span>Lancer la recherche</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer mt-6">
+        <div class="content has-text-centered">
+            <div class="container">
+                <p class="has-text-grey mb-2">
+                    Recherche d'images par intelligence artificielle
+                </p>
+                <p class="is-size-6 has-text-weight-semibold">
+                    Développé par Maxime Dupuis & Roméo Ibraimovski
+                </p>
+                <p class="is-size-7 has-text-grey-light mt-2">
+                    2025 - Projet Cloud Computing
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const fileInput = document.querySelector('.file-input');
+        const fileName = document.querySelector('.file-name');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileName.textContent = this.files[0].name;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const deleteButtons = document.querySelectorAll('.notification .delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    button.parentElement.remove();
+                });
+            });
+
+            const notifications = document.querySelectorAll('.notification');
+            notifications.forEach(notification => {
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 5000);
+            });
+
+            // Gestion de l'affichage des champs selon la source de l'image
+            const imageSourceSelect = document.getElementById('image_source');
+            const externalImageField = document.getElementById('external_image_field');
+            const databaseImageField = document.getElementById('database_image_field');
+            const externalFileInput = document.getElementById('external_file_input');
+            const databaseImageNumber = document.getElementById('database_image_number');
+            const previewContainer = document.getElementById('preview_container');
+            const imagePreview = document.getElementById('image_preview');
+            const imageClassSelect = document.getElementById('image_class');
+            const databaseImagePath = document.getElementById('database_image_path');
+
+            function updateFormFields() {
+                const isExternal = imageSourceSelect.value === 'external';
+                
+                // Afficher/masquer les champs appropriés
+                externalImageField.style.display = isExternal ? 'block' : 'none';
+                databaseImageField.style.display = isExternal ? 'none' : 'block';
+                
+                // Rendre le champ d'upload obligatoire uniquement si c'est une image externe
+                if (externalFileInput) {
+                    externalFileInput.required = isExternal;
+                }
+                
+                // Réinitialiser l'aperçu si on change de source
+                previewContainer.style.display = 'none';
+                
+                // Si on passe à la base de données, mettre à jour l'aperçu
+                if (!isExternal) {
+                    updateImagePreview();
+                }
+            }
+            
+            // Mettre à jour l'aperçu et le chemin de l'image quand une classe et un numéro sont sélectionnés
+            function updateImagePreview() {
+                const imageClass = parseInt(imageClassSelect.value);
+                const imageNumber = databaseImageNumber.value;
+                
+                if (imageClass !== null && imageNumber !== '' && !isNaN(imageNumber)) {
+                    const actualImageNumber = imageClass * 100 + parseInt(imageNumber);
+                    const timestamp = new Date().getTime(); // Ajouter un timestamp pour éviter le cache
+                    const imagePath = `/static/image.orig/${actualImageNumber}.jpg?t=${timestamp}`;
+                    
+                    // Précharger l'image pour vérifier qu'elle existe
+                    const img = new Image();
+                    img.onload = function() {
+                        imagePreview.src = imagePath;
+                        previewContainer.style.display = 'block';
+                        databaseImagePath.value = actualImageNumber.toString();
+                    };
+                    img.onerror = function() {
+                        previewContainer.style.display = 'none';
+                        databaseImagePath.value = '';
+                        alert(`L'image ${actualImageNumber}.jpg n'existe pas dans la base de données.`);
+                    };
+                    img.src = imagePath;
+                } else {
+                    previewContainer.style.display = 'none';
+                    databaseImagePath.value = '';
+                }
+            }
+
+            // Événements pour mettre à jour l'aperçu
+            imageClassSelect.addEventListener('change', updateImagePreview);
+            databaseImageNumber.addEventListener('change', updateImagePreview);
+            
+            // Initialiser l'affichage
+            imageSourceSelect.addEventListener('change', updateFormFields);
+            updateFormFields();
+        });
+    </script>
+</body>
+</html>

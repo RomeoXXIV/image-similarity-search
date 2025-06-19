@@ -1,0 +1,57 @@
+# Fichiers système
+.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environnement virtuel
+venv/
+env/
+ENV/
+
+# Bases de données
+*.db
+*.sqlite
+*.sqlite3
+
+# Fichiers de log
+*.log
+
+# Fichiers temporaires
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+app/static/results/*
+!app/static/results/.gitkeep
+
+# Fichiers de configuration locaux
+.env
+.env.local
+
+# Fichiers de cache
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Fichiers de build
+dist/
+build/
+*.egg-info/
+
+# Fichiers IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Fichiers de données volumineux
+*.pkl
+*.h5
+*.pt
+*.pth

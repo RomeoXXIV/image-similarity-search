@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Connexion - Recherche d'images</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+    <section class="hero is-info is-fullheight">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-4-desktop is-6-tablet">
+                        <div class="box">
+                            <div class="has-text-centered mb-5">
+                                <h1 class="title is-3 has-text-black">
+                                    <span class="icon is-large">
+                                        <i class="mdi mdi-login mdi-36px"></i>
+                                    </span>
+                                    Connexion
+                                </h1>
+                                <p class="subtitle is-6 has-text-black">
+                                    Recherche d'images par IA
+                                </p>
+                            </div>
+
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="notification is-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }}">
+                                            <button class="delete"></button>
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+
+                            <form method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div class="field">
+                                    <label class="label">Nom d'utilisateur</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="text" name="username" placeholder="Votre nom d'utilisateur" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="mdi mdi-account"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <label class="label">Mot de passe</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="password" name="password" placeholder="Votre mot de passe" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="mdi mdi-lock"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="control">
+                                        <button class="button is-info is-fullwidth is-medium" type="submit">
+                                            <span class="icon">
+                                                <i class="mdi mdi-login"></i>
+                                            </span>
+                                            <span>Se connecter</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <hr>
+
+                            <div class="has-text-centered">
+                                <p>
+                                    Pas encore de compte ?
+                                    <a href="{{ url_for('register') }}" class="has-text-weight-bold">
+                                        Créer un compte
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p class="has-text-grey mb-2">
+                Recherche d'images par intelligence artificielle
+            </p>
+            <p class="is-size-6 has-text-weight-semibold">
+                Développé par Maxime Dupuis & Roméo Ibraimovski
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const deleteButtons = document.querySelectorAll('.notification .delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    button.parentElement.remove();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
